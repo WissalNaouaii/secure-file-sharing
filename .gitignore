@@ -1,0 +1,31 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# Database
+*.db
+*.sqlite
+
+# File storage (encrypted blobs)
+storage/*
+!storage/.gitkeep
+
+# PKI secrets
+pki/ca/*.key
+pki/certs/
+
+# Environment
+.env
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db

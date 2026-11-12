@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Déposer{% endblock %}
+{% block content %}
+<h1>Déposer un fichier</h1>
+<form method="post" enctype="multipart/form-data">
+    <label>Fichier</label>
+    <input type="file" name="file" required>
+    <button type="submit">Déposer</button>
+</form>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Mes fichiers</h1>
+<p><a href="{{ url_for('main.upload') }}">+ Déposer un fichier</a></p>
+
+<h2>Fichiers que je possède</h2>
+{% if owned %}
+<table>
+    <thead><tr><th>Nom</th><th>Déposé le</th><th>Actions</th></tr></thead>
+    <tbody>
+    {% for f in owned %}
+        <tr>
+            <td>{{ f.original_name }}</td>
+            <td>{{ f.created_at }}</td>
+            <td>
+                <a href="{{ url_for('main.download', file_id=f.id) }}">Télécharger</a> |
+                <a href="{{ url_for('main.share', file_id=f.id) }}">Partager</a>
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Aucun fichier déposé.</p>
+{% endif %}
+
+<h2>Fichiers partagés avec moi</h2>
+{% if shared %}
+<table>
+    <thead><tr><th>Nom</th><th>Propriétaire</th><th>Action</th></tr></thead>
+    <tbody>
+    {% for f in shared %}
+        <tr>
+            <td>{{ f.original_name }}</td>
+            <td>{{ f.owner_email }}</td>
+            <td><a href="{{ url_for('main.download', file_id=f.id) }}">Télécharger</a></td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>Rien de partagé avec moi.</p>
+{% endif %}
+{% endblock %}

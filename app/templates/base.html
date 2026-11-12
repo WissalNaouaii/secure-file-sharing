@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <title>{% block title %}Partage sécurisé{% endblock %}</title>
+    <style>
+        body { font-family: sans-serif; max-width: 720px; margin: 2em auto; padding: 0 1em; }
+        nav { border-bottom: 1px solid #ccc; padding-bottom: .5em; margin-bottom: 1em; }
+        nav a { margin-right: 1em; }
+        .flash { background: #fffbcc; border: 1px solid #e0d060; padding: .5em; margin: .5em 0; }
+        table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+        th, td { border: 1px solid #ccc; padding: .4em .6em; text-align: left; }
+        form label { display: block; margin: .5em 0 .2em; }
+        form input[type=text], form input[type=email], form input[type=password] { width: 100%; padding: .3em; }
+        button { margin-top: .8em; padding: .4em 1em; }
+    </style>
+</head>
+<body>
+    <nav>
+        {% if session.user_id %}
+            <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('main.upload') }}">Upload</a>
+            <a href="{{ url_for('main.logout') }}">Logout ({{ session.user_email }})</a>
+        {% else %}
+            <a href="{{ url_for('main.login') }}">Login</a>
+            <a href="{{ url_for('main.register') }}">Register</a>
+        {% endif %}
+    </nav>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+</body>
+</html>
