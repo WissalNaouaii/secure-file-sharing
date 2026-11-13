@@ -7,7 +7,7 @@ Deliberate vulnerabilities in this file (to be fixed in Livrable 3):
 - Error messages reveal whether an email exists
 """
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, abort, send_file
-from passlib.hash import bcrypt
+import bcrypt
 from .db import get_db
 
 bp = Blueprint("main", __name__)
@@ -57,7 +57,7 @@ def register():
             flash("Email et mot de passe requis.")
             return render_template("register.html")
 
-        pw_hash = bcrypt.hash(password)
+        pw_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
         # VULN: SQL by string concatenation (SQLi)
         conn = get_db()
@@ -96,7 +96,7 @@ def login():
         if user is None:
             flash("Aucun compte avec cet email.")
             return render_template("login.html")
-        if not bcrypt.verify(password, user["password_hash"]):
+        if not bcrypt.checkpw(password.encode(), user["password_hash"].encode()):
             flash("Mot de passe incorrect.")
             return render_template("login.html")
 
