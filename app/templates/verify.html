@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Vérification{% endblock %}
+{% block content %}
+<h1>Vérification du fichier #{{ file.id }}</h1>
+<p><strong>{{ file.original_name }}</strong></p>
+
+{% if all_ok %}
+<p style="color:green"><strong>Intégrité vérifiée, signature valide.</strong></p>
+{% else %}
+<p style="color:red"><strong>Échec de vérification : le fichier n'est pas délivré.</strong></p>
+{% endif %}
+
+<table>
+    <thead><tr><th>Contrôle</th><th>Résultat</th><th>Détail</th></tr></thead>
+    <tbody>
+    {% for c in checks %}
+        <tr>
+            <td>{{ c.label }}</td>
+            <td style="color:{{ 'green' if c.ok else 'red' }}">{{ 'OK' if c.ok else 'ÉCHEC' }}</td>
+            <td>{{ c.detail }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h2>Référence de la plateforme</h2>
+<p>SHA-256 : <code>{{ file.sha256_hash }}</code></p>
+
+{% if cert_info %}
+<h2>Certificat du signataire</h2>
+<table>
+    <tr><th>Sujet</th><td>{{ cert_info.subject }}</td></tr>
+    <tr><th>Émetteur</th><td>{{ cert_info.issuer }}</td></tr>
+    <tr><th>Valide du</th><td>{{ cert_info.not_before }}</td></tr>
+    <tr><th>Valide jusqu'au</th><td>{{ cert_info.not_after }}</td></tr>
+    <tr><th>Empreinte</th><td><code>{{ cert_info.fingerprint_sha256 }}</code></td></tr>
+</table>
+{% endif %}
+
+<p>
+    {% if all_ok %}<a href="{{ url_for('main.download', file_id=file.id) }}">Télécharger</a> | {% endif %}
+    <a href="{{ url_for('main.dashboard') }}">Retour</a>
+</p>
+{% endblock %}

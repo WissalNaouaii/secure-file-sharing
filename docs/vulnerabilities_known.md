@@ -1,39 +1,27 @@
-# Vulnérabilités volontaires — Version Vulnérable
+# Vulnérabilités volontaires : version vulnérable (Livrable 2)
 
-Ce fichier liste les failles laissées intentionnellement dans la branche `vulnerable` pour le Livrable 2. Elles seront exploitées puis corrigées dans la branche `secure` pour le Livrable 3.
+Failles laissées intentionnellement dans la branche `vulnerable`. Elles seront exploitées (preuves) puis corrigées dans la branche `secure` pour le Livrable 3.
 
-## Déjà en place dans cette version
+| # | Faille | Où | Catégorie OWASP | Correctif prévu (branche `secure`) |
+|---|---|---|---|---|
+| V1 | Requête SQL par concaténation à l'inscription | `app/routes.py` register() | A03 Injection | Requêtes paramétrées |
+| V2 | Requête SQL par concaténation à la connexion | `app/routes.py` login() | A03 Injection | Requêtes paramétrées |
+| V3 | Aucun jeton CSRF sur les formulaires POST | tous les templates | A01 Broken Access Control | Flask-WTF CSRFProtect, SameSite |
+| V4 | Cookie de session sans Secure ni SameSite, pas de régénération ni d'expiration | `app/__init__.py` | A07 Auth Failures | Cookies durcis, régénération à la connexion, expiration 30 min |
+| V5 | `secret_key` écrite dans le code source | `app/__init__.py` | A05 Misconfiguration | Clé lue depuis une variable d'environnement |
+| V6 | Pas de limitation des tentatives de connexion | `app/routes.py` login() | A07 Auth Failures | Compteur d'échecs, verrouillage après 5 essais |
+| V7 | Messages d'erreur qui révèlent l'existence d'un compte, erreurs SQL affichées | `app/routes.py` login() | A07 Auth Failures | Message générique |
+| V8 | IDOR : `/download/<id>`, `/verify/<id>` et `/share/<id>` sans contrôle des droits | `app/routes.py` | A01 Broken Access Control | Vérification propriétaire ou partage actif, réponse 403 |
+| V9 | Clé AES de chaque fichier stockée en clair en base (`files.aes_key`) | `app/routes.py` upload() | A02 Cryptographic Failures | `crypto.wrap_key` avec clé maître en variable d'environnement, `wrap_key_for_recipient` (ECDH, HKDF) pour le partage |
+| V10 | Clé privée ECDSA de l'utilisateur stockée en clair en base | `app/routes.py` register() | A02 Cryptographic Failures | `crypto.encrypt_private_key` (PBKDF2 + AES-GCM) |
+| V11 | Aucun contrôle du type, de la taille ni du nom du fichier déposé | `app/routes.py` upload() | A04 Insecure Design | Liste blanche d'extensions, limite 10 Mo, détection MIME |
+| V12 | Nom de fichier affiché sans échappement (XSS stocké) | `app/templates/dashboard.html` | A03 Injection | Retrait du filtre `safe`, en-tête Content-Security-Policy |
+| V13 | Clé privée de l'AC non chiffrée sur disque (créée sans passphrase) | `pki/ca/` | A02 Cryptographic Failures | Passphrase obligatoire (`CA_PASSPHRASE`) |
+| V14 | Serveur lancé en mode debug (console Werkzeug accessible) | `run.py` | A05 Misconfiguration | `debug=False` |
+| V15 | Pas de politique de mots de passe | `app/routes.py` register() | A07 Auth Failures | 12 caractères minimum, 4 classes |
 
-| # | Faille | Fichier | Catégorie OWASP |
-|---|---|---|---|
-| V1 | Requête SQL par concaténation dans `/register` (email + password_hash) | `app/routes.py` register() | A03 Injection |
-| V2 | Requête SQL par concaténation dans `/login` (email) | `app/routes.py` login() | A03 Injection |
-| V3 | Pas de jeton CSRF sur les formulaires POST (register, login, upload, share) | tous les templates | A01 CSRF |
-| V4 | Cookies de session sans HttpOnly / Secure / SameSite | `app/__init__.py` | A07 Auth fail |
-| V5 | `secret_key` hardcodée dans le code source | `app/__init__.py` | A05 Misconfig |
-| V6 | Pas de limitation du débit ni de verrouillage sur /login | `app/routes.py` login() | A07 Auth fail |
-| V7 | Messages d'erreur révèlent l'existence d'un compte | `app/routes.py` login() | A07 Auth fail |
-| V8 | IDOR sur `/download/<file_id>` : pas de vérification de propriété | `app/routes.py` download() | A01 Access control |
+## Ce qui est déjà solide dans cette version
 
-## À documenter en ajoutant la crypto (jeudi)
+Les mécanismes cryptographiques eux-mêmes sont corrects et testés (`tests/test_security.py`) : AES-256-GCM avec nonce aléatoire de 96 bits par chiffrement, SHA-256 comparé en temps constant, signature ECDSA P-256, certificats X.509 validés (chaîne, dates, usage, identité). Les failles ci-dessus portent sur l'application Web et sur le stockage des clés, pas sur les algorithmes.
 
-| # | Faille | Fichier | Catégorie OWASP |
-|---|---|---|---|
-| V9 | Clé AES de chaque fichier stockée en clair en base (`files.aes_key`) | `schema.sql` | A02 Crypto fail |
-| V10 | Clé privée ECDSA utilisateur stockée en clair en base | `schema.sql` | A02 Crypto fail |
-| V11 | Pas de validation de type / taille sur l'upload | route upload() | A05 Misconfig |
-| V12 | Pas d'échappement explicite des noms de fichiers dans les templates | templates | A03 XSS |
-
-## Corrections prévues pour le Livrable 3 (branche `secure`)
-
-- V1, V2 : requêtes paramétrées (`?` placeholders)
-- V3 : Flask-WTF avec CSRFProtect
-- V4 : `SESSION_COOKIE_HTTPONLY = True`, `SESSION_COOKIE_SECURE = True`, `SESSION_COOKIE_SAMESITE = 'Lax'`, régénération à la connexion
-- V5 : clé lue depuis `.env` via `python-dotenv`
-- V6 : limitation avec `flask-limiter`, compteur de tentatives dans la BD
-- V7 : message générique "Email ou mot de passe incorrect"
-- V8 : vérifier `owner_id == session.user_id OR exists(share)`
-- V9 : `aes_key` chiffrée par une clé maître en variable d'environnement
-- V10 : chiffrée via PBKDF2-HMAC-SHA256(password, salt) à l'inscription, déchiffrée en mémoire à la connexion
-- V11 : liste blanche d'extensions, limite 10 Mo, détection MIME, renommage serveur
-- V12 : vérifier l'auto-échappement Jinja2, ajouter en-tête Content-Security-Policy
+Les fonctions de la version sécurisée existent déjà dans `security/crypto.py` (enveloppement par clé maître, partage hybride, chiffrement de la clé privée) ; elles ne sont pas encore branchées dans les routes.

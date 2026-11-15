@@ -1,31 +1,32 @@
 # Python
 venv/
+.venv/
 __pycache__/
 *.pyc
-*.pyo
 .pytest_cache/
 
-# Database
+# Base de données et journal
 *.db
 *.sqlite
+audit.log
 
-# File storage (encrypted blobs)
+# Fichiers chiffrés
 storage/*
 !storage/.gitkeep
 
-# PKI secrets
-pki/ca/*.key
+# PKI : aucune clé privée dans Git
+pki/ca/
+pki/issued/
 pki/certs/
+*.key
+*.key.pem
+*.srl
 
-# Environment
+# Environnement
 .env
-.venv
 
-# IDE
+# IDE / OS
 .vscode/
 .idea/
-*.swp
-
-# OS
 .DS_Store
 Thumbs.db
