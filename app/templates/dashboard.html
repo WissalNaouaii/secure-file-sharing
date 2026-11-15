@@ -11,10 +11,12 @@
     <tbody>
     {% for f in owned %}
         <tr>
-            <td>{{ f.original_name }}</td>
+            {# VULN V12 : nom de fichier affiché sans échappement (XSS stocké) #}
+            <td>{{ f.original_name|safe }}</td>
             <td>{{ f.created_at }}</td>
             <td>
                 <a href="{{ url_for('main.download', file_id=f.id) }}">Télécharger</a> |
+                <a href="{{ url_for('main.verify', file_id=f.id) }}">Vérifier</a> |
                 <a href="{{ url_for('main.share', file_id=f.id) }}">Partager</a>
             </td>
         </tr>
@@ -28,13 +30,16 @@
 <h2>Fichiers partagés avec moi</h2>
 {% if shared %}
 <table>
-    <thead><tr><th>Nom</th><th>Propriétaire</th><th>Action</th></tr></thead>
+    <thead><tr><th>Nom</th><th>Propriétaire</th><th>Actions</th></tr></thead>
     <tbody>
     {% for f in shared %}
         <tr>
-            <td>{{ f.original_name }}</td>
+            <td>{{ f.original_name|safe }}</td>
             <td>{{ f.owner_email }}</td>
-            <td><a href="{{ url_for('main.download', file_id=f.id) }}">Télécharger</a></td>
+            <td>
+                <a href="{{ url_for('main.download', file_id=f.id) }}">Télécharger</a> |
+                <a href="{{ url_for('main.verify', file_id=f.id) }}">Vérifier</a>
+            </td>
         </tr>
     {% endfor %}
     </tbody>

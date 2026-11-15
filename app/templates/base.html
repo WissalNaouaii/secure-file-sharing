@@ -2,37 +2,157 @@
 <html lang="fr">
 <head>
     <meta charset="utf-8">
-    <title>{% block title %}Partage sécurisé{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Partage sécurisé{% endblock %} · SecureShare</title>
     <style>
-        body { font-family: sans-serif; max-width: 720px; margin: 2em auto; padding: 0 1em; }
-        nav { border-bottom: 1px solid #ccc; padding-bottom: .5em; margin-bottom: 1em; }
-        nav a { margin-right: 1em; }
-        .flash { background: #fffbcc; border: 1px solid #e0d060; padding: .5em; margin: .5em 0; }
-        table { border-collapse: collapse; width: 100%; margin: 1em 0; }
-        th, td { border: 1px solid #ccc; padding: .4em .6em; text-align: left; }
-        form label { display: block; margin: .5em 0 .2em; }
-        form input[type=text], form input[type=email], form input[type=password] { width: 100%; padding: .3em; }
-        button { margin-top: .8em; padding: .4em 1em; }
+        :root {
+            --navy: #1a3a5c;
+            --navy-dark: #12283f;
+            --bg: #f3f6fa;
+            --card: #ffffff;
+            --line: #d9e1ea;
+            --text: #1f2a37;
+            --muted: #5b6b7c;
+            --ok: #1e7b46;
+            --bad: #b3261e;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+            font-size: 15px;
+            line-height: 1.5;
+            color: var(--text);
+            background: var(--bg);
+        }
+        nav {
+            background: var(--navy);
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            min-height: 54px;
+            flex-wrap: wrap;
+        }
+        nav .brand {
+            color: #fff;
+            font-weight: 700;
+            font-size: 17px;
+            letter-spacing: .3px;
+            margin-right: auto;
+            padding: 14px 0;
+        }
+        nav a {
+            color: #dbe6f2;
+            text-decoration: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        nav a:hover { background: var(--navy-dark); color: #fff; }
+        main {
+            max-width: 860px;
+            margin: 28px auto;
+            padding: 28px 32px 32px;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(26, 58, 92, .08);
+        }
+        h1 { font-size: 24px; margin: 0 0 16px; color: var(--navy); }
+        h2 {
+            font-size: 16px;
+            margin: 28px 0 10px;
+            color: var(--navy);
+            padding-bottom: 6px;
+            border-bottom: 2px solid var(--bg);
+        }
+        a { color: #1f5fa8; }
+        p { margin: 10px 0; }
+        code {
+            font-family: Consolas, "Courier New", monospace;
+            font-size: 12.5px;
+            background: var(--bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            word-break: break-all;
+        }
+        .flash {
+            background: #fff8e1;
+            border: 1px solid #ecd58a;
+            border-left: 4px solid #d9a400;
+            padding: 10px 14px;
+            margin: 0 0 16px;
+            border-radius: 6px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 10px 0 6px;
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid var(--line);
+            padding: 9px 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+        thead th { background: var(--navy); color: #fff; font-weight: 600; border-color: var(--navy); }
+        tbody th { background: var(--bg); width: 170px; font-weight: 600; }
+        tbody tr:nth-child(even) td { background: #f8fafc; }
+        form { max-width: 440px; }
+        form label { display: block; margin: 14px 0 5px; font-weight: 600; font-size: 14px; }
+        form input[type=text], form input[type=email], form input[type=password], form input[type=file] {
+            width: 100%;
+            padding: 9px 11px;
+            border: 1px solid #b9c6d4;
+            border-radius: 6px;
+            font: inherit;
+            background: #fff;
+        }
+        form input:focus { outline: 2px solid #8fb5dd; border-color: #1f5fa8; }
+        button {
+            margin-top: 18px;
+            padding: 10px 22px;
+            background: var(--navy);
+            color: #fff;
+            border: 0;
+            border-radius: 6px;
+            font: inherit;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        button:hover { background: var(--navy-dark); }
+        footer { text-align: center; color: var(--muted); font-size: 12.5px; margin: 0 0 28px; }
+        @media (max-width: 700px) {
+            main { margin: 14px; padding: 20px 18px; }
+            table { display: block; overflow-x: auto; }
+        }
     </style>
 </head>
 <body>
     <nav>
+        <span class="brand">SecureShare</span>
         {% if session.user_id %}
-            <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
-            <a href="{{ url_for('main.upload') }}">Upload</a>
-            <a href="{{ url_for('main.logout') }}">Logout ({{ session.user_email }})</a>
+            <a href="{{ url_for('main.dashboard') }}">Mes fichiers</a>
+            <a href="{{ url_for('main.upload') }}">Déposer</a>
+            <a href="{{ url_for('main.logout') }}">Déconnexion ({{ session.user_email }})</a>
         {% else %}
-            <a href="{{ url_for('main.login') }}">Login</a>
-            <a href="{{ url_for('main.register') }}">Register</a>
+            <a href="{{ url_for('main.login') }}">Connexion</a>
+            <a href="{{ url_for('main.register') }}">Inscription</a>
         {% endif %}
     </nav>
 
-    {% with messages = get_flashed_messages() %}
-        {% if messages %}
-            {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
-        {% endif %}
-    {% endwith %}
+    <main>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
+            {% endif %}
+        {% endwith %}
 
-    {% block content %}{% endblock %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>Projet Sécurité Informatique, GLSI 3_4 · Wissal Naouai et Ines Jridi · version vulnérable (usage local uniquement)</footer>
 </body>
 </html>
